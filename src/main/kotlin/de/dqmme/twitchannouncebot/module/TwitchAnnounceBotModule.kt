@@ -27,6 +27,7 @@ import dev.kord.core.behavior.channel.createMessage
 import dev.kord.core.behavior.edit
 import dev.kord.core.entity.Message
 import dev.kord.core.supplier.EntitySupplyStrategy
+import dev.schlaubi.mikbot.plugin.api.pluginSystem
 import dev.schlaubi.mikbot.plugin.api.util.AllShardsReadyEvent
 import dev.schlaubi.mikbot.plugin.api.util.embed
 import dev.schlaubi.mikbot.util_plugins.ktor.api.buildBotUrl
@@ -220,9 +221,9 @@ class TwitchAnnounceBotModule : Extension() {
             val channelInformation = twitchClient.helix.getSingleUser(channelId)
 
             val offlineEmbed = embed {
-                this.title = translate("steam.went_offline.title", channelName)
+                this.title = settings.translate("steam.went_offline.title", channelName)
 
-                description = translate("steam.went_offline.description")
+                description = settings.translate("steam.went_offline.description")
 
                 thumbnail {
                     url = channelInformation.profileImageUrl
@@ -262,32 +263,32 @@ class TwitchAnnounceBotModule : Extension() {
             val channel = kord.unsafe.guildMessageChannel(settings.guildId, settings.announceChannelId!!)
 
             val embed = embed {
-                this.title = translate("steam.started.title", channelName)
+                this.title = settings.translate("steam.started.title", channelName)
 
-                description = translate("steam.started.description", channelName, categoryName)
+                description = settings.translate("steam.started.description", channelName, categoryName)
 
                 field {
-                    name = translate("stream.title.name")
+                    name = settings.translate("stream.title.name")
                     value = title
                     inline = false
                 }
 
                 if (categoryName.isNotEmpty()) {
                     field {
-                        name = translate("steam.game.name")
+                        name = settings.translate("steam.game.name")
                         value = categoryName
                         inline = true
                     }
                 }
 
                 field {
-                    name = translate("stream.status.name")
-                    value = translate("stream.status.description", viewerCount)
+                    name = settings.translate("stream.status.name")
+                    value = settings.translate("stream.status.description", viewerCount)
                     inline = true
                 }
 
                 field {
-                    name = translate("stream.uptime.name")
+                    name = settings.translate("stream.uptime.name")
                     value = uptime
                     inline = true
                 }
@@ -401,5 +402,8 @@ class TwitchAnnounceBotModule : Extension() {
         }
     }
 
-    fun translate(key: String, vararg arguments: Any): String = "bot.tra()"
+    @Suppress("UNCHECKED_CAST")
+    fun AnnouncerSettings.translate(key: String, vararg arguments: Any): String = pluginSystem.translate(
+        key, bundle, language.asJavaLocale().toLanguageTag(), replacements = arguments as Array<Any?>
+    )
 }
