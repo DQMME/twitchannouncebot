@@ -22,13 +22,13 @@ class TwitchAnnounceBot(wrapper: PluginWrapper) : Plugin(wrapper) {
 
 
     override suspend fun ExtensibleBotBuilder.apply() {
-        hooks {
+        /*hooks {
             afterKoinSetup {
                 getKoin().loadModules(
                     listOf(module { single { twitchClient } })
                 )
             }
-        }
+        }*/
     }
 
     override fun ExtensibleBotBuilder.ExtensionsBuilder.addExtensions() {
