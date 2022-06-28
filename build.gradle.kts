@@ -1,4 +1,6 @@
+import dev.schlaubi.mikbot.gradle.GenerateDefaultTranslationBundleTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.Locale
 
 plugins {
     id("com.google.devtools.ksp") version "1.7.0-1.0.6"
@@ -24,6 +26,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-rx2", "1.6.2")
     implementation("com.github.akarnokd", "rxjava2-interop", "0.13.7")
     plugin("dev.schlaubi", "mikbot-ktor", "2.3.0")
+    plugin("dev.schlaubi", "mikbot-game-animator", "2.4.0")
 }
 
 mikbotPlugin {
@@ -39,10 +42,22 @@ tasks {
             freeCompilerArgs = freeCompilerArgs + "-opt-in=kotlin.RequiresOptIn"
         }
     }
+
+    val generateDefaultResourceBundle = task<GenerateDefaultTranslationBundleTask>("generateDefaultResourceBundle") {
+        defaultLocale.set(Locale("en", "GB"))
+    }
+
+    assemblePlugin {
+        dependsOn(generateDefaultResourceBundle)
+    }
+
+    assembleBot {
+        bundledPlugins.set(listOf("ktor@2.3.0", "game-animator@2.3.0"))
+    }
 }
 
 pluginPublishing {
-    repositoryUrl.set("https://katze.streamerflash.de")
+    repositoryUrl.set("https://twitchannounce.dqmme.gay")
     targetDirectory.set(rootProject.file("ci-repo").toPath())
-    projectUrl.set("https://github.com/DQMME/nothing")
+    projectUrl.set("https://github.com/DQMME/twitchannouncebot")
 }

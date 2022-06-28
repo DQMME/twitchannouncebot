@@ -3,12 +3,12 @@ package de.dqmme.twitchannouncebot
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
 import com.kotlindiscord.kord.extensions.builders.ExtensibleBotBuilder
+import com.kotlindiscord.kord.extensions.utils.loadModule
 import de.dqmme.twitchannouncebot.config.Config
 import de.dqmme.twitchannouncebot.module.TwitchAnnounceBotModule
 import dev.schlaubi.mikbot.plugin.api.Plugin
 import dev.schlaubi.mikbot.plugin.api.PluginMain
 import dev.schlaubi.mikbot.plugin.api.PluginWrapper
-import org.koin.dsl.module
 
 @PluginMain
 class TwitchAnnounceBot(wrapper: PluginWrapper) : Plugin(wrapper) {
@@ -20,15 +20,12 @@ class TwitchAnnounceBot(wrapper: PluginWrapper) : Plugin(wrapper) {
         .withEnableGraphQL(true)
         .build()
 
-
     override suspend fun ExtensibleBotBuilder.apply() {
-        /*hooks {
-            afterKoinSetup {
-                getKoin().loadModules(
-                    listOf(module { single { twitchClient } })
-                )
+        hooks {
+            beforeKoinSetup {
+                loadModule { single { twitchClient } }
             }
-        }*/
+        }
     }
 
     override fun ExtensibleBotBuilder.ExtensionsBuilder.addExtensions() {

@@ -36,10 +36,6 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.http.appendPathSegments
 import io.ktor.http.isSuccess
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ticker
@@ -54,9 +50,6 @@ import org.koin.core.component.inject
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
 import org.litote.kmongo.not
-import kotlin.collections.isNotEmpty
-import kotlin.collections.map
-import kotlin.collections.mutableListOf
 import kotlin.collections.set
 import kotlin.time.Duration.Companion.seconds
 
@@ -77,18 +70,13 @@ class TwitchAnnounceBotModule : Extension() {
         setAnnounceChannelCommand()
         setAnnounceRoleCommand()
         setTwitchChannelCommand()
+        setLanguageCommand()
 
         event<AllShardsReadyEvent> {
             action {
                 updateEmbeds()
                 listenForEvents()
             }
-        }
-
-        CoroutineScope(Dispatchers.IO).launch {
-            embeddedServer(Netty, port = 7953) {
-
-            }.start(wait = true)
         }
     }
 
@@ -128,12 +116,14 @@ class TwitchAnnounceBotModule : Extension() {
                         if (response.status.isSuccess()) {
                             previewImages[channelId] = response.body()
                             url = buildBotUrl {
-                                appendPathSegments("twtich", "live-image")
+                                appendPathSegments("twitch", "live-image")
                                 parameters["image"] = "$channelId-${System.currentTimeMillis()}"
                             }.toString()
                         } else {
                             url = twitchPreviewUrl(user.login)
                         }
+
+                        println(url)
 
                         updateStream(
                             channelId,
@@ -221,9 +211,9 @@ class TwitchAnnounceBotModule : Extension() {
             val channelInformation = twitchClient.helix.getSingleUser(channelId)
 
             val offlineEmbed = embed {
-                this.title = settings.translate("steam.went_offline.title", channelName)
+                this.title = settings.translate("stream.went_offline.title", channelName)
 
-                description = settings.translate("steam.went_offline.description")
+                description = settings.translate("stream.went_offline.description")
 
                 thumbnail {
                     url = channelInformation.profileImageUrl
@@ -263,9 +253,9 @@ class TwitchAnnounceBotModule : Extension() {
             val channel = kord.unsafe.guildMessageChannel(settings.guildId, settings.announceChannelId!!)
 
             val embed = embed {
-                this.title = settings.translate("steam.started.title", channelName)
+                this.title = settings.translate("stream.started.title", channelName)
 
-                description = settings.translate("steam.started.description", channelName, categoryName)
+                description = settings.translate("stream.started.description", channelName, categoryName)
 
                 field {
                     name = settings.translate("stream.title.name")
@@ -275,7 +265,7 @@ class TwitchAnnounceBotModule : Extension() {
 
                 if (categoryName.isNotEmpty()) {
                     field {
-                        name = settings.translate("steam.game.name")
+                        name = settings.translate("stream.game.name")
                         value = categoryName
                         inline = true
                     }

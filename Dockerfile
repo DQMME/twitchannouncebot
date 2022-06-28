@@ -8,6 +8,6 @@ FROM ibm-semeru-runtimes:open-18-jre-focal
 WORKDIR /usr/app
 COPY --from=builder /usr/app/build/installBot .
 
-LABEL org.opencontainers.image.source = "https://github.com/DQMME/katze"
+LABEL org.opencontainers.image.source = "https://github.com/DQMME/twitchannouncebot"
 
 ENTRYPOINT ["/usr/app/bin/mikmusic"]

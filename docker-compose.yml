@@ -12,6 +12,8 @@ services:
     image: ghcr.io/dqmme/twitchannouncebot/bot:latest
     env_file:
       - .env
+    environment:
+      - "GAMES=l: ${guild_count} guilds,l: ${channel_count} twitch channels"
     depends_on:
       - mongo
     volumes:
