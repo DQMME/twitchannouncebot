@@ -52,7 +52,7 @@ tasks {
     }
 
     assembleBot {
-        bundledPlugins.set(listOf("ktor@2.3.0", "game-animator@2.3.0"))
+        bundledPlugins.set(listOf("ktor@2.3.0", "game-animator@2.4.0"))
     }
 }
 
