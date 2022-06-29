@@ -11,7 +11,6 @@ import com.kotlindiscord.kord.extensions.extensions.Extension
 import com.kotlindiscord.kord.extensions.extensions.event
 import de.dqmme.twitchannouncebot.database.AnnouncerSettings
 import de.dqmme.twitchannouncebot.database.Database
-import de.dqmme.twitchannouncebot.server.previewImages
 import de.dqmme.twitchannouncebot.util.executeAsync
 import de.dqmme.twitchannouncebot.util.getCurrentStream
 import de.dqmme.twitchannouncebot.util.getEventHandler
@@ -30,12 +29,6 @@ import dev.kord.core.supplier.EntitySupplyStrategy
 import dev.schlaubi.mikbot.plugin.api.pluginSystem
 import dev.schlaubi.mikbot.plugin.api.util.AllShardsReadyEvent
 import dev.schlaubi.mikbot.plugin.api.util.embed
-import dev.schlaubi.mikbot.util_plugins.ktor.api.buildBotUrl
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
-import io.ktor.http.appendPathSegments
-import io.ktor.http.isSuccess
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ticker
@@ -50,7 +43,6 @@ import org.koin.core.component.inject
 import org.litote.kmongo.and
 import org.litote.kmongo.eq
 import org.litote.kmongo.not
-import kotlin.collections.set
 import kotlin.time.Duration.Companion.seconds
 
 private val LOG = KotlinLogging.logger { }
@@ -64,7 +56,6 @@ class TwitchAnnounceBotModule : Extension() {
     @OptIn(ObsoleteCoroutinesApi::class)
     private val ticker = ticker(60.seconds.inWholeMilliseconds, 0)
     private lateinit var runner: Job
-    private val client = HttpClient()
 
     override suspend fun setup() {
         setAnnounceChannelCommand()
@@ -110,20 +101,6 @@ class TwitchAnnounceBotModule : Extension() {
                 for (unit in ticker) {
                     forAllChannels {
                         val stream = twitchClient.helix.getCurrentStream(channelId) ?: return@forAllChannels
-                        val response = client.get(twitchPreviewUrl(user.login))
-                        val url: String?
-
-                        if (response.status.isSuccess()) {
-                            previewImages[channelId] = response.body()
-                            url = buildBotUrl {
-                                appendPathSegments("twitch", "live-image")
-                                parameters["image"] = "$channelId-${System.currentTimeMillis()}"
-                            }.toString()
-                        } else {
-                            url = twitchPreviewUrl(user.login)
-                        }
-
-                        println(url)
 
                         updateStream(
                             channelId,
@@ -131,7 +108,6 @@ class TwitchAnnounceBotModule : Extension() {
                             stream.gameName,
                             stream.title,
                             stream.viewerCount,
-                            previewUrl = url,
                             uptime = stream.uptime()
                         )
                     }
@@ -242,8 +218,7 @@ class TwitchAnnounceBotModule : Extension() {
         title: String,
         viewerCount: Int,
         deleteOldMessage: Boolean = false,
-        previewUrl: String = twitchPreviewUrl(channelName),
-        uptime: String = "0s"
+        uptime: String = "`N/A`"
     ) {
         forAllChannels(channelId) {
             if (deleteOldMessage) {
@@ -293,7 +268,7 @@ class TwitchAnnounceBotModule : Extension() {
                     url = user.profileImageUrl
                 }
 
-                image = previewUrl
+                image = twitchPreviewUrl(channelName)
 
                 url = "https://twitch.tv/${channelName}"
             }

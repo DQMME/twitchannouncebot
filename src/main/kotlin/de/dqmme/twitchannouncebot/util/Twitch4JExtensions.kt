@@ -6,7 +6,6 @@ import com.github.twitch4j.helix.TwitchHelix
 import com.github.twitch4j.helix.domain.Stream
 import dev.kord.common.DiscordTimestampStyle
 import dev.kord.common.toMessageFormat
-import kotlinx.datetime.Clock
 import kotlinx.datetime.toKotlinInstant
 
 inline fun <reified E> IEventHandler.onEvent(noinline handler: (E) -> Unit) = onEvent(E::class.java, handler)
@@ -35,6 +34,6 @@ suspend fun TwitchHelix.getCurrentStream(channelId: String): Stream? {
     return stream
 }
 
-fun twitchPreviewUrl(channelName: String) = "https://static-cdn.jtvnw.net/previews-ttv/live_user_${channelName}.jpg"
+fun twitchPreviewUrl(channelName: String) = "https://static-cdn.jtvnw.net/previews-ttv/live_user_${channelName}.jpg?t=${System.currentTimeMillis()}"
 
 fun Stream.uptime() = startedAtInstant.toKotlinInstant().toMessageFormat(DiscordTimestampStyle.RelativeTime)
