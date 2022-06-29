@@ -18,6 +18,7 @@ class GameAnimatorExtension : GameAnimatorExtensionPoint, KordExKoinComponent {
     override suspend fun String.replaceVariables(): String {
         val twitchChannelCount = Database.settings.countDocuments(not(AnnouncerSettings::twitchChannel eq null))
         val guildCount = kord.guilds.count()
+        println(this)
         return replace("%channel_count%", "$twitchChannelCount").replace("%guild_count%", "$guildCount")
     }
 }
