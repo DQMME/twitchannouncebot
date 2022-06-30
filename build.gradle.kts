@@ -25,7 +25,6 @@ dependencies {
     implementation("com.github.twitch4j", "twitch4j", "1.10.0")
     implementation("org.jetbrains.kotlinx", "kotlinx-coroutines-rx2", "1.6.2")
     implementation("com.github.akarnokd", "rxjava2-interop", "0.13.7")
-    plugin("dev.schlaubi", "mikbot-ktor", "2.3.0")
     plugin("dev.schlaubi", "mikbot-game-animator", "2.4.0")
 }
 
