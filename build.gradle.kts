@@ -52,7 +52,9 @@ tasks {
     }
 
     assembleBot {
-        bundledPlugins.set(listOf("game-animator@2.4.0"))
+        bundledPlugins.set(
+            listOf("game-animator@2.4.0")
+        )
     }
 }
 
