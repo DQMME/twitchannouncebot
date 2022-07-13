@@ -183,7 +183,7 @@ class TwitchAnnounceBotModule : Extension() {
     }
 
     private suspend fun updateStreamOffline(channelId: String, channelName: String) {
-        forAllChannels(channelId) {
+        forAllChannelsNothingNull(channelId) {
             val channelInformation = twitchClient.helix.getSingleUser(channelId)
 
             val offlineEmbed = embed {
