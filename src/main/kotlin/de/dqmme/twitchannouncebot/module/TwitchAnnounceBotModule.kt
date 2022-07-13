@@ -335,6 +335,27 @@ class TwitchAnnounceBotModule : Extension() {
         }
     }
 
+    private suspend fun forAllChannelsNothingNull(channelId: String, onEach: suspend ChannelContext.() -> Unit) {
+        val channels = Database.settings.find(
+            and(
+                not(AnnouncerSettings::twitchChannel eq null),
+                not(AnnouncerSettings::announceChannelId eq null),
+                not(AnnouncerSettings::goLiveMessageId eq null)
+            )
+        )
+
+        val user = twitchClient.helix.getSingleUser(channelId)
+
+        coroutineScope {
+            channels
+                .toFlow()
+                .onEach { settings ->
+                    onEach(ChannelContext(channelId, user, settings))
+                }
+                .launchIn(this)
+        }
+    }
+
     private suspend fun forAllChannelsNothingNull(onEach: suspend ChannelContext.() -> Unit) {
         val channels = Database.settings.find(
             and(
