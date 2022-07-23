@@ -285,7 +285,8 @@ class TwitchAnnounceBotModule : Extension() {
 
             if (deleteOldMessage) {
                 val newMessage = channel.createMessage {
-                    if (settings.announceRoleId != null) content = "<@&${settings.announceRoleId}>"
+                    if (settings.announceRoleId != null) content =
+                        if (settings.announceRoleId == settings.guildId) "@everyone" else "<@&${settings.announceRoleId}>"
                     embeds.add(embed)
                 }
 
