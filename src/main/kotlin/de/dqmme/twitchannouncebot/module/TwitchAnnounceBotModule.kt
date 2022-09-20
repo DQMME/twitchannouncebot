@@ -339,6 +339,7 @@ class TwitchAnnounceBotModule : Extension() {
     private suspend fun forAllChannelsNothingNull(channelId: String, onEach: suspend ChannelContext.() -> Unit) {
         val channels = Database.settings.find(
             and(
+                AnnouncerSettings::twitchChannel eq channelId,
                 not(AnnouncerSettings::twitchChannel eq null),
                 not(AnnouncerSettings::announceChannelId eq null),
                 not(AnnouncerSettings::goLiveMessageId eq null)
