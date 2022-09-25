@@ -210,7 +210,7 @@ class TwitchAnnounceBotModule : Extension() {
                         name = "Uptime"
                         val duration = Clock.System.now() - startedAt
 
-                        value = duration.toString()
+                        value = duration.toString().split(".").toMutableList().removeAt(1) + "s"
                     }
                 }
             }
