@@ -103,6 +103,10 @@ class TwitchAnnounceBotModule : Extension() {
                     forAllChannels {
                         val stream = twitchClient.helix.getCurrentStream(channelId) ?: return@forAllChannels
 
+                        val uptimeValue = stream.uptime()
+
+                        uptime[channelId] = uptimeValue
+
                         updateStream(
                             channelId,
                             user.login,
