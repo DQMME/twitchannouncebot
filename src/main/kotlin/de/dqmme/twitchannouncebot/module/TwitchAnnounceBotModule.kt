@@ -56,6 +56,7 @@ class TwitchAnnounceBotModule : Extension() {
     @OptIn(ObsoleteCoroutinesApi::class)
     private val ticker = ticker(60.seconds.inWholeMilliseconds, 0)
     private lateinit var runner: Job
+    private val uptime = hashMapOf<String, String>()
 
     override suspend fun setup() {
         setAnnounceChannelCommand()
@@ -171,13 +172,17 @@ class TwitchAnnounceBotModule : Extension() {
                 return@forAllChannelsNothingNull
             }
 
+            val uptimeValue = stream.uptime()
+
+            uptime[channelId] = uptimeValue
+
             updateStream(
                 channelId,
                 user.login,
                 stream.gameName,
                 stream.title,
                 stream.viewerCount,
-                uptime = stream.uptime()
+                uptime = uptimeValue
             )
         }
     }
@@ -196,6 +201,11 @@ class TwitchAnnounceBotModule : Extension() {
                 }
 
                 image = channelInformation.offlineImageUrl
+
+                field {
+                    name = "Uptime"
+                    value = uptime[channelId] ?: "`N/A`"
+                }
             }
 
             val message = kord.unsafe.guildMessageChannel(settings.guildId, settings.announceChannelId!!).withStrategy(
