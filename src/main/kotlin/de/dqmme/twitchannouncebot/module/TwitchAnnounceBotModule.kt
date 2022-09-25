@@ -38,6 +38,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toKotlinInstant
 import mu.KotlinLogging
 import org.koin.core.component.inject
 import org.litote.kmongo.and
@@ -56,7 +59,7 @@ class TwitchAnnounceBotModule : Extension() {
     @OptIn(ObsoleteCoroutinesApi::class)
     private val ticker = ticker(60.seconds.inWholeMilliseconds, 0)
     private lateinit var runner: Job
-    private val uptime = hashMapOf<String, String>()
+    private val startedAt = hashMapOf<String, Instant>()
 
     override suspend fun setup() {
         setAnnounceChannelCommand()
@@ -103,9 +106,7 @@ class TwitchAnnounceBotModule : Extension() {
                     forAllChannels {
                         val stream = twitchClient.helix.getCurrentStream(channelId) ?: return@forAllChannels
 
-                        val uptimeValue = stream.uptime()
-
-                        uptime[channelId] = uptimeValue
+                        startedAt[channelId] = stream.startedAtInstant.toKotlinInstant()
 
                         updateStream(
                             channelId,
@@ -176,17 +177,13 @@ class TwitchAnnounceBotModule : Extension() {
                 return@forAllChannelsNothingNull
             }
 
-            val uptimeValue = stream.uptime()
-
-            uptime[channelId] = uptimeValue
-
             updateStream(
                 channelId,
                 user.login,
                 stream.gameName,
                 stream.title,
                 stream.viewerCount,
-                uptime = uptimeValue
+                uptime = stream.uptime()
             )
         }
     }
@@ -206,9 +203,15 @@ class TwitchAnnounceBotModule : Extension() {
 
                 image = channelInformation.offlineImageUrl
 
-                field {
-                    name = "Uptime"
-                    value = uptime[channelId] ?: "`N/A`"
+                val startedAt = startedAt[channelId]
+
+                if(startedAt != null) {
+                    field {
+                        name = "Uptime"
+                        val duration = Clock.System.now() - startedAt
+
+                        value = duration.toString()
+                    }
                 }
             }
 
