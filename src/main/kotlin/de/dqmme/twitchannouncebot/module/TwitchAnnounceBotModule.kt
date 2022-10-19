@@ -210,7 +210,7 @@ class TwitchAnnounceBotModule : Extension() {
                         name = "Uptime"
                         val duration = Clock.System.now() - startedAt
 
-                        value = duration.toString().split(".").toMutableList().removeAt(1) + "s"
+                        value = formatTime(duration.inWholeSeconds)
                     }
                 }
             }
@@ -411,4 +411,59 @@ class TwitchAnnounceBotModule : Extension() {
     fun AnnouncerSettings.translate(key: String, vararg arguments: Any): String = pluginSystem.translate(
         key, bundle, language.asJavaLocale().toLanguageTag(), replacements = arguments as Array<Any?>
     )
+
+    private fun formatTime(time: Long): String {
+        var duration: Long = time
+        var timeString = ""
+        var hours = 0L
+        var minutes = 0L
+        var seconds = 0L
+
+        if (duration / 60 / 60 / 24 >= 1) {
+            duration -= duration / 60 / 60 / 24 * 60 * 60 * 24
+        }
+
+        if (duration / 60 / 60 >= 1) {
+            hours = duration / 60 / 60
+            duration -= duration / 60 / 60 * 60 * 60
+        }
+
+        if (duration / 60 >= 1) {
+            minutes = duration / 60
+            duration -= duration / 60 * 60
+        }
+
+        if (duration >= 1) seconds = duration
+
+        timeString = when (hours) {
+            0L -> {
+                ""
+            }
+
+            else -> {
+                "$timeString${hours}h "
+            }
+        }
+
+        timeString = when (minutes) {
+            0L -> {
+                ""
+            }
+
+            else -> {
+                "$timeString${minutes}m "
+            }
+        }
+
+        timeString = when (seconds) {
+            0L -> {
+                ""
+            }
+            else -> {
+                "$timeString${seconds}s"
+            }
+        }
+
+        return timeString
+    }
 }
